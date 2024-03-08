@@ -73,11 +73,9 @@ void SoftRenderer::Update2D(float InDeltaSeconds)
 	Vector2 deltaPosition = inputVector * moveSpeed * InDeltaSeconds;
 	float deltaScale = input.GetAxis(InputAxis::ZAxis) * scaleSpeed * InDeltaSeconds;
 
-	// 물체의 최종 상태 결정
-
+	// 물체의 최종 상태 설정
 	currentPosition += deltaPosition;
 	currentScale = Math::Clamp(currentScale + deltaScale, scaleMin, scaleMax);
-
 }
 
 // 렌더링 로직을 담당하는 함수
@@ -94,15 +92,13 @@ void SoftRenderer::Render2D()
 	float rad = 0.f;
 	static float increment = 0.001f;
 	static std::vector<Vector2> hearts;
+	HSVColor hsv(0.f, 1.f, 0.85f);
 
 	// 하트를 구성하는 점 생성
 	if (hearts.empty())
 	{
 		for (rad = 0.f; rad < Math::TwoPI; rad += increment)
 		{
-			// 하트 방정식
-			// x와 y를 구하기.
-			// hearts.push_back(Vector2(x, y));
 			float sin = sinf(rad);
 			float cos = cosf(rad);
 			float cos2 = cosf(2 * rad);
@@ -114,9 +110,13 @@ void SoftRenderer::Render2D()
 		}
 	}
 
+	// 각 값을 초기화한 후 색상을 증가시키면서 점에 대응
+	rad = 0.f;
 	for (auto const& v : hearts)
 	{
-		r.DrawPoint(v * currentScale + currentPosition, LinearColor::Blue);
+		hsv.H = rad / Math::TwoPI;
+		r.DrawPoint(v * currentScale + currentPosition, hsv.ToLinearColor());
+		rad += increment;
 	}
 
 	// 현재 위치와 스케일을 화면에 출력
